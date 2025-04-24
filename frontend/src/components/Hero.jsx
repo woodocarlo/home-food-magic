@@ -46,22 +46,10 @@ function Hero() {
         <Carousel />
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
-        <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
-          Discover <span className="text-green-400">{currentTagline}</span> Recipes
+        <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-2xl [-webkit-text-stroke:1px_rgba(0,0,0,0.5)]">
+          Discover <span className="text-green-400 [-webkit-text-stroke:0]">{currentTagline}</span> Recipes
         </h1>
-        <p className="mt-4 text-lg md:text-xl text-white drop-shadow-md max-w-3xl mx-auto">
-          Explore a world of flavors with our curated collection of recipes that are easy to make and
-          delicious to eat.
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="mt-8 inline-block bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700"
-        >
-          Explore Recipes
-        </motion.button>
       </div>
-      <div className="absolute inset-0 bg-black opacity-40 z-0" />
     </motion.section>
   );
 }

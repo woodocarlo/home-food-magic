@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 
 function Carousel() {
   const media = [
-    { type: 'image', src: 'https://via.placeholder.com/1920x1080?text=Recipe+1' },
-    { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-    { type: 'image', src: 'https://via.placeholder.com/1920x1080?text=Recipe+3' },
-    { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+    { type: 'image', src: '/src/components/public/assests/1.jpg' },
+    { type: 'image', src: '/src/components/public/assests/2.jpg' },
+    { type: 'image', src: '/src/components/public/assests/3.jpg' },
+    { type: 'video', src: '/src/components/public/assests/Untitled%20design%20(7).mp4' },
     { type: 'image', src: 'https://via.placeholder.com/1920x1080?text=Recipe+5' },
   ];
 

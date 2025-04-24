@@ -2,9 +2,11 @@ import { motion } from 'framer-motion';
 import { Link as ScrollLink } from 'react-scroll';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import LoginModal from './LoginModal';
 
 function Navbar() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const linkVariants = {
     hover: { scale: 1.1, transition: { duration: 0.3 } },
@@ -92,6 +94,7 @@ function Navbar() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => setIsModalOpen(true)}
               className="bg-green-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-green-700 transition-colors"
             >
               Login
@@ -139,7 +142,10 @@ function Navbar() {
                 </ScrollLink>
                 <button
                   className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-green-100"
-                  onClick={toggleMoreDropdown}
+                  onClick={() => {
+                    toggleMoreDropdown();
+                    setIsModalOpen(true);
+                  }}
                 >
                   Login
                 </button>
@@ -148,6 +154,7 @@ function Navbar() {
           </div>
         </div>
       </div>
+      {isModalOpen && <LoginModal onClose={() => setIsModalOpen(false)} />}
     </nav>
   );
 }

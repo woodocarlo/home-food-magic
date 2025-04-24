@@ -7,17 +7,18 @@ import AboutAppDetails from './components/AboutAppDetails';
 import AboutApplication from './components/AboutApplication';
 import SignupContact from './components/SignupContact';
 import Footer from './components/Footer';
+import OrderFood from './components/OrderFood';
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50 font-poppins">
-        <Navbar />
         <Routes>
           <Route
             path="/"
             element={
               <>
+                <Navbar />
                 <Hero />
                 <HowItWorks />
                 <Testimonials />
@@ -27,6 +28,7 @@ function App() {
               </>
             }
           />
+          <Route path="/order-food" element={<OrderFood />} />
         </Routes>
       </div>
     </Router>
