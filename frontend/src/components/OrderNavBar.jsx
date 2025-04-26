@@ -5,13 +5,12 @@ function OrderNavbar({
   onToggleSidebar, 
   pincode, 
   setPincode, 
-  showPincodeInput, 
-  setShowPincodeInput,
   onDetectLocation,
   locationStatus
 }) {
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showPincodeInput, setShowPincodeInput] = useState(false);
 
   const handleSignOut = () => {
     console.log('User signed out');
@@ -19,7 +18,7 @@ function OrderNavbar({
   };
 
   return (
-    <nav className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
+    <nav className="bg-[#FFB300] shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
@@ -28,7 +27,7 @@ function OrderNavbar({
               alt="App Logo" 
               className="h-10 w-10"
             />
-            <span className="ml-2 text-xl font-bold text-[#FF6347]">Foodie</span>
+            <span className="ml-2 text-xl font-bold text-white">Foodie</span>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -36,11 +35,14 @@ function OrderNavbar({
               <div className="relative">
                 <button 
                   onClick={() => setShowPincodeInput(!showPincodeInput)}
-                  className="flex items-center text-gray-600 hover:text-[#FF6347] px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="flex items-center text-white hover:text-[#FF8F00] px-3 py-2 rounded-md text-sm font-medium transition harassment-colors"
                 >
                   <span className="truncate max-w-xs">
-                    {pincode ? `Delivery to: ${pincode}` : 'Set Location'}
+                    {pincode ? `The NorthCap University, Sector 23A, Gurgaon ${pincode}` : 'Set Location'}
                   </span>
+                  <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
                 
                 {showPincodeInput && (
@@ -50,7 +52,7 @@ function OrderNavbar({
                         type="text"
                         value={pincode}
                         onChange={(e) => setPincode(e.target.value)}
-                        className="flex-1 px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-[#FF6347]"
+                        className="flex-1 px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-[#FFB300]"
                         placeholder="Enter pincode"
                       />
                       <button 
@@ -83,23 +85,16 @@ function OrderNavbar({
             ) : null}
             
             <button 
-              className="text-gray-600 hover:text-[#FF6347] px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="text-white hover:text-[#FF8F00] px-3 py-2 rounded-md text-sm font-medium transition-colors"
               onClick={() => navigate('/subscriptions')}
             >
               Subscriptions
             </button>
             
-            <button 
-              onClick={onToggleSidebar}
-              className="text-gray-600 hover:text-[#FF6347] px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            >
-              More
-            </button>
-            
             <div className="relative">
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 text-gray-600 hover:text-[#FF6347] px-3 py-2 rounded-md"
+                className="flex items-center space-x-2 text-white hover:text-[#FF8F00] px-3 py-2 rounded-md"
               >
                 <img 
                   src="https://via.placeholder.com/32?text=Profile" 

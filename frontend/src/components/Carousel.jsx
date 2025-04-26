@@ -6,8 +6,7 @@ function Carousel() {
     { type: 'image', src: '/src/components/public/assests/1.jpg' },
     { type: 'image', src: '/src/components/public/assests/2.jpg' },
     { type: 'image', src: '/src/components/public/assests/3.jpg' },
-    { type: 'video', src: '/src/components/public/assests/Untitled%20design%20(7).mp4' },
-    { type: 'image', src: 'https://via.placeholder.com/1920x1080?text=Recipe+5' },
+  // https://www.canva.com/design/DAGlkEQSncg/xviBhZWz1sbfiNAKlGlJvA/edit
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);

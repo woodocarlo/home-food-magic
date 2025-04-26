@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import OrderNavbar from './OrderNavBar';
+import { useState } from 'react';
+import OrderNavbar from './OrderNavbar';
 
 function OrderFood() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [pincode, setPincode] = useState('');
   const [locationStatus, setLocationStatus] = useState('');
-  const [animationStage, setAnimationStage] = useState(0); // 0: hidden, 1: loading, 2: map, 3: zoomed
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [deliveryOption, setDeliveryOption] = useState('Delivery');
+  const [selectedTime, setSelectedTime] = useState('Now');
+  const [orderStatus, setOrderStatus] = useState({ 0: 'pending', 1: 'pending' });
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -14,26 +19,157 @@ function OrderFood() {
 
   const handleDetectLocation = () => {
     setLocationStatus('fetching');
-    setAnimationStage(1); // Show loading
-    
     setTimeout(() => {
-      setAnimationStage(2); // Show full India map
-      
-      setTimeout(() => {
-        setAnimationStage(3); // Zoom to Gurgaon
-        setPincode('122017');
-        setLocationStatus('success');
-      }, 1500);
+      setPincode('122017');
+      setLocationStatus('success');
     }, 2000);
   };
 
-  // Simplified India map path
-  const indiaMapPath = "M650,350 L630,370 L610,380 L590,400 L570,410 L550,420 L530,430 L510,440 L490,450 L470,460 L450,470 L430,480 L410,490 L390,500 L370,510 L350,520 L330,530 L310,540 L290,550 L270,560 L250,570 L230,580 L210,590 L190,600 L170,610 L150,620 L130,630 L110,640 L90,650 L70,660 L50,670 L30,680 L50,660 L70,640 L90,620 L110,600 L130,580 L150,560 L170,540 L190,520 L210,500 L230,480 L250,460 L270,440 L290,420 L310,400 L330,380 L350,360 L370,340 L390,320 L410,300 L430,280 L450,260 L470,240 L490,220 L510,200 L530,180 L550,160 L570,140 L590,120 L610,100 L630,80 L650,60 L670,80 L690,100 L710,120 L730,140 L750,160 L770,180 L750,200 L730,220 L710,240 L690,260 L670,280 L650,300 L630,320 L610,340 L590,360 L570,380 L550,400 L530,420 L510,440 L490,460 L470,480 L450,500 L430,520 L410,540 L390,560 L370,580 L350,600 L330,620 L310,640 L290,660 L270,680 L250,700 L230,720 L210,740 L190,760 L170,780 L150,800 L130,780 L110,760 L90,740 L70,720 L50,700 L30,680 Z";
+  const handleExplore = (category) => {
+    console.log(`Exploring ${category} category`);
+  };
+
+  const handleTakeOrder = () => {
+    setOrderStatus((prev) => {
+      const newStatus = {};
+      Object.keys(prev).forEach((key) => {
+        newStatus[key] = 'accepted';
+      });
+      return newStatus;
+    });
+    setShowPreferences(true);
+    console.log('Taking order for all dishes');
+  };
+
+  const handleNotInterested = () => {
+    setShowDisclaimer(true);
+  };
+
+  const confirmNotInterested = () => {
+    setOrderStatus((prev) => {
+      const newStatus = {};
+      Object.keys(prev).forEach((key) => {
+        newStatus[key] = 'rejected';
+      });
+      return newStatus;
+    });
+    setShowDisclaimer(false);
+    setShowPreferences(false);
+    console.log('All dishes rejected');
+  };
+
+  const cancelDisclaimer = () => {
+    setShowDisclaimer(false);
+  };
+
+  const handleBack = () => {
+    if (showDisclaimer) {
+      cancelDisclaimer();
+    } else if (showPreferences) {
+      setShowPreferences(false);
+      setOrderStatus((prev) => {
+        const newStatus = {};
+        Object.keys(prev).forEach((key) => {
+          newStatus[key] = 'pending';
+        });
+        return newStatus;
+      });
+      setSelectedItems([]);
+      setSelectedTime('Now');
+    }
+    console.log('Back button clicked');
+  };
+
+  const handleItemToggle = (item) => {
+    setSelectedItems((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
+  };
+
+  const handleCustomTime = (e) => {
+    const value = e.target.value.trim();
+    const timeRegex = /^([1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
+    if (timeRegex.test(value) || timeSlots.includes(value)) {
+      setSelectedTime(value);
+    }
+  };
+
+  // Placeholder for database data
+  const chefInfo = {
+    name: 'Chef Aanya',
+    photo: 'https://i.postimg.cc/7ZBcjDqp/chef-photo.jpg',
+    dishes: [
+      {
+        name: 'Grilled Chicken Bowl',
+        photo: 'https://i.postimg.cc/SKbXzLx4/crousel.jpg',
+        cookedAt: '2025-04-27T10:30:00',
+      },
+      {
+        name: 'Quinoa Power Salad',
+        photo: 'https://i.postimg.cc/T3vKSqMs/6.jpg',
+        cookedAt: '2025-04-26T11:00:00',
+      },
+    ],
+    orderItems: ['Chicken Curry', 'Veggie Stir-Fry', 'Paneer Tikka'],
+    note: 'Made with love and fresh ingredients just for you!',
+  };
+
+  const getCookedDay = (cookedAt) => {
+    const today = new Date('2025-04-27');
+    const cookedDate = new Date(cookedAt);
+    const diffTime = today - cookedDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const hours = cookedDate.getHours();
+    const minutes = cookedDate.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    const time = `${formattedHours}:${minutes} ${ampm}`;
+    return diffDays === 0 ? `today at ${time}` : diffDays === 1 ? `yesterday at ${time}` : `${diffDays} days ago at ${time}`;
+  };
+
+  const timeSlots = ['Now', '30 mins', '1 hour', '2 hours'];
+
+  const categories = [
+    {
+      name: 'PowerFuel',
+      description: 'Fuel your gains with high-protein, carb-packed meals crafted for gym warriors. Think grilled chicken bowls, quinoa power salads, and protein smoothies to supercharge your workouts.',
+      color: '#bb0718',
+      image: 'https://i.postimg.cc/SKbXzLx4/crousel.jpg',
+    },
+    {
+      name: 'VitalBite',
+      description: 'Nourish your body with dietician-approved, nutrient-dense dishes. Multigrain wraps, low-oil stir-fries, and vitamin-rich superfood bowls to keep you glowing and energized.',
+      color: '#d32f2f',
+      image: 'https://i.postimg.cc/T3vKSqMs/6.jpg',
+    },
+    {
+      name: 'HealSpoon',
+      description: 'Gentle, soothing meals for when you’re under the weather. Savor light khichdi, veggie broths, and steamed comforts that hug your soul and aid recovery.',
+      color: '#8e0000',
+      image: 'https://i.postimg.cc/Xqyv1X23/7.jpg',
+    },
+    {
+      name: 'DailyCrave',
+      description: 'Satisfy your everyday cravings with classic comfort foods. From buttery parathas to spicy street-style chaat, these dishes bring joy to every bite.',
+      color: '#ff5252',
+      image: 'https://i.postimg.cc/WtL1BjKZ/8.jpg',
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#FFF5EE] font-poppins">
+    <div className="min-h-screen bg-[#f5b110] font-poppins">
+      {/* More Icon */}
+      <button
+        onClick={toggleSidebar}
+        className="fixed top-4 left-4 z-[100] text-[#963f28] hover:text-[#c3015a] transition-colors bg-white/80 rounded-full p-1 shadow-md"
+      >
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      
       <OrderNavbar 
-        onToggleSidebar={toggleSidebar} 
+        onToggleSidebar={toggleSidebar}
         pincode={pincode}
         setPincode={setPincode}
         onDetectLocation={handleDetectLocation}
@@ -43,16 +179,188 @@ function OrderFood() {
       <div className="flex pt-16">
         {/* Sidebar */}
         {isSidebarOpen && (
-          <div className="fixed top-16 left-0 h-[calc(100vh-4rem)] w-1/4 bg-[#FFCCCB] rounded-r-3xl shadow-lg p-6 z-40">
-            <h2 className="text-xl font-bold text-[#FF6347] mb-4">Quick Filters</h2>
-            <ul className="space-y-2">
-              <li>
-                <button className="w-full text-left px-4 py-2 rounded-lg bg-white/50 hover:bg-white text-gray-700 hover:text-[#FF6347] transition-colors">
-                  Vegetarian
+          <div className="fixed top-16 left-0 h-[calc(100vh-4rem)] w-1/4 bg-[#c3015a] rounded-r-3xl shadow-lg p-6 z-40 flex flex-col gap-6 overflow-y-auto">
+            <div className="flex flex-col items-center">
+              <img
+                src={chefInfo.photo}
+                alt={chefInfo.name}
+                className="w-24 h-24 rounded-full object-cover mb-2 border-2 border-white shadow-md"
+              />
+              <h2 className="text-xl font-bold text-white text-center">
+                From the Kitchen of {chefInfo.name}
+              </h2>
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-2 bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold mt-2"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+            </div>
+
+            {/* Dishes */}
+            <div className="flex justify-center gap-4">
+              {chefInfo.dishes.map((dish, index) => (
+                <div key={index} className="flex flex-col items-center">
+                  <div
+                    className={`relative min-w-[160px] min-h-[190px] max-w-[180px] max-h-[190px] border-4 border-white shadow-md rounded-lg bg-white transform rotate-7 ${
+                      orderStatus[index] === 'rejected' ? 'bg-gray-400 opacity-50' : ''
+                    }`}
+                  >
+                    <div className="w-full h-[calc(100%-3rem)] overflow-hidden">
+                      <img
+                        src={dish.photo}
+                        alt={dish.name}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    </div>
+                    <p className="absolute bottom-0 left-0 right-0 text-center text-base font-bold font-serif text-black">
+                      {dish.name}
+                    </p>
+                  </div>
+                  <p className="text-white text-xs text-center mt-2">Cooked {getCookedDay(dish.cookedAt)}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Order Options */}
+            {Object.values(orderStatus).includes('pending') && (
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={handleTakeOrder}
+                  className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold"
+                >
+                  Take Order
                 </button>
-              </li>
-              {/* Other filter buttons */}
-            </ul>
+                <button
+                  onClick={handleNotInterested}
+                  className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold"
+                >
+                  Not Interested
+                </button>
+              </div>
+            )}
+
+            {/* Disclaimer */}
+            {showDisclaimer && (
+              <div className="bg-white p-4 rounded-lg text-center">
+                <p className="text-[#c3015a] text-sm mb-4">
+                  Are you sure? These dishes will be marked as unavailable and cannot be reordered.
+                </p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={confirmNotInterested}
+                    className="bg-[#c3015a] text-white px-4 py-2 rounded-lg hover:bg-[#bb0718] transition-colors text-sm"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={cancelDisclaimer}
+                    className="bg-gray-200 text-[#c3015a] px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Food Item Selection */}
+            {showPreferences && (
+              <div className="flex flex-col gap-2">
+                <p className="text-white text-sm font-semibold text-center">
+                  Select Items for {deliveryOption}:
+                </p>
+                <div className="flex flex-wrap gap-2 max-w-full">
+                  {chefInfo.orderItems.map((item) => (
+                    <label
+                      key={item}
+                      className="flex items-center gap-2 text-white text-sm w-[calc(50%-0.5rem)]"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(item)}
+                        onChange={() => handleItemToggle(item)}
+                        className="text-[#f5b110]"
+                      />
+                      {item}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Order Preference */}
+            {showPreferences && (
+              <div className="flex flex-col gap-2">
+                <p className="text-white text-sm font-semibold text-center">Order Preference:</p>
+                <div className="flex justify-center gap-4">
+                  <label className="flex items-center gap-2 text-white text-sm">
+                    <input
+                      type="radio"
+                      name="deliveryOption"
+                      value="Pickup"
+                      checked={deliveryOption === 'Pickup'}
+                      onChange={() => setDeliveryOption('Pickup')}
+                      className="text-[#f5b110]"
+                    />
+                    Pickup
+                  </label>
+                  <label className="flex items-center gap-2 text-white text-sm">
+                    <input
+                      type="radio"
+                      name="deliveryOption"
+                      value="Delivery"
+                      checked={deliveryOption === 'Delivery'}
+                      onChange={() => setDeliveryOption('Delivery')}
+                      className="text-[#f5b110]"
+                    />
+                    Delivery
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* Time Selection */}
+            {showPreferences && (
+              <div className="flex flex-col gap-2">
+                <p className="text-white text-sm font-semibold text-center">Select Time for {deliveryOption}:</p>
+                <div className="flex justify-center gap-2 flex-wrap">
+                  {timeSlots.map((slot) => (
+                    <button
+                      key={slot}
+                      onClick={() => setSelectedTime(slot)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                        selectedTime === slot
+                          ? 'bg-[#f5b110] text-white'
+                          : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={selectedTime}
+                  onChange={handleCustomTime}
+                  placeholder="Enter time, e.g., 2:45 PM"
+                  className="w-full p-2 rounded-lg bg-white text-[#c3015a] text-sm text-center"
+                />
+              </div>
+            )}
+
+            {/* Chef's Note */}
+            <div className="flex flex-col gap-2">
+              <p className="text-white text-sm font-semibold text-center">Note from {chefInfo.name}:</p>
+              <div
+                className="p-4 rounded-lg text-white text-sm font-caveat bg-cover bg-center"
+                style={{ backgroundImage: "url('https://i.postimg.cc/1tYJ5q0z/diary-bg.png')" }}
+              >
+                {chefInfo.note}
+              </div>
+            </div>
           </div>
         )}
         
@@ -60,100 +368,70 @@ function OrderFood() {
         <div className={`flex-1 p-6 ${isSidebarOpen ? 'ml-[25%]' : 'ml-0'}`}>
           {!pincode ? (
             <div className="flex flex-col items-center justify-center h-[70vh]">
-              <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
-                <h2 className="text-2xl font-bold text-[#FF6347] mb-6 text-center">Update Your Location</h2>
-                {/* Location input form */}
+              <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
+                <img 
+                  src="src/components/public/assests/4.png" 
+                  alt="Location Error" 
+                  className="mx-auto mb-4 w-80 h-80 object-contain"
+                />
+                <h2 className="text-2xl font-bold text-[#bb0718] mb-6">Can't locate you, please retry</h2>
+                <button
+                  onClick={handleDetectLocation}
+                  className="bg-[#f5b110] text-white px-6 py-2 rounded-full hover:bg-[#bb0718] transition-colors"
+                >
+                  {locationStatus === 'fetching' ? 'Detecting...' : 'Detect Location'}
+                </button>
               </div>
             </div>
           ) : (
-            <>
-              {/* Map Animation Container */}
-              <div className="mb-6 relative h-64 bg-gray-100 rounded-xl overflow-hidden">
-                <AnimatePresence>
-                  {/* Loading State */}
-                  {animationStage === 1 && (
-                    <motion.div
-                      key="loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex items-center justify-center bg-white/80"
-                    >
-                      <div className="text-center">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                          className="w-10 h-10 border-4 border-[#FF6347] border-t-transparent rounded-full mx-auto mb-4"
-                        />
-                        <p className="text-gray-700 font-medium">Fetching your location...</p>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* India Map - Ensure this has explicit dimensions */}
-                  {animationStage >= 2 && (
-                    <motion.div
-                      key="map"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute inset-0 w-full h-full"
-                    >
-                      <svg 
-                        viewBox={
-                          animationStage === 2 ? "0 0 800 800" : "450 250 300 300"
-                        }
-                        preserveAspectRatio="xMidYMid meet"
-                        className="w-full h-full transition-all duration-1000 ease-in-out"
-                      >
-                        <path 
-                          d={indiaMapPath}
-                          fill="#E5E7EB" 
-                          stroke="#6B7280" 
-                          strokeWidth="2"
-                        />
-                        
-                        {/* Gurgaon Pin */}
-                        {animationStage >= 2 && (
-                          <motion.g
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ 
-                              type: 'spring', 
-                              bounce: 0.6,
-                              delay: animationStage === 2 ? 0.5 : 0
-                            }}
-                          >
-                            <circle cx="550" cy="420" r="10" fill="#FF0000" />
-                            <circle cx="550" cy="420" r="5" fill="#FFFFFF" />
-                          </motion.g>
-                        )}
-                      </svg>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Location Address */}
-                {animationStage === 3 && (
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    className="absolute bottom-4 left-0 right-0 mx-auto bg-white/90 px-4 py-2 rounded-lg shadow-md max-w-xs text-center"
+            <div className="w-full pt-8">
+              <h1 className="text-4xl font-bold text-[#963f28] mb-6 text-center">Explore Our Food Categories</h1>
+              <div className="flex space-x-4 mb-6 w-full">
+                {categories.map((category, index) => (
+                  <div
+                    key={category.name}
+                    className={`relative min-w-[200px] h-96 rounded-2xl shadow-lg transition-all duration-300 ease-in-out cursor-pointer flex-grow flex-shrink ${
+                      hoveredCategory === index ? '!flex-[2]' : '!flex-1'
+                    }`}
+                    style={{ backgroundColor: category.color }}
+                    onMouseEnter={() => {
+                      setHoveredCategory(index);
+                      console.log(`Hovering over ${category.name}`);
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredCategory(null);
+                      console.log('Hover ended');
+                    }}
                   >
-                    <p className="text-gray-800 font-medium truncate">
-                      The NorthCap University, Sector 23A, Gurgaon
-                    </p>
-                  </motion.div>
-                )}
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                    />
+                    {hoveredCategory === index && (
+                      <div className="absolute inset-0 bg-black/50 rounded-2xl flex flex-col items-center justify-center p-6 overflow-hidden">
+                        <h3 className="text-2xl font-extrabold text-white mb-3 break-words">{category.name}</h3>
+                        <p className="text-white text-sm text-center mb-6 break-words">
+                          {category.description}
+                        </p>
+                        <button
+                          onClick={() => handleExplore(category.name)}
+                          className="bg-white text-[#bb0718] px-6 py-2 rounded-full hover:bg-[#ff5252] hover:text-white transition-colors"
+                        >
+                          Explore
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-
-              {/* Food Items */}
-              <h1 className="text-3xl font-bold text-[#FF6347] mb-6">Order Your Favorite Food</h1>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Food cards */}
-              </div>
-            </>
+              <p className="text-lg text-[#963f28] text-center mb-4">
+                Discover delicious meals tailored to your lifestyle, from fitness-focused to everyday delights.
+              </p>
+              <h2 className="text-xl font-bold text-[#bb0718] text-center">
+                You have 9 outside orders left for the month
+              </h2>
+            </div>
           )}
         </div>
       </div>
