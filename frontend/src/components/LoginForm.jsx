@@ -9,27 +9,30 @@ function LoginForm({ role, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!recaptchaValue) {
-      alert('Please verify you are not a robot.');
-      return;
-    }
+ // In your LoginForm.jsx, update the handleSubmit function
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!recaptchaValue) {
+    alert('Please verify you are not a robot.');
+    return;
+  }
 
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Login submitted:', { role, username, password });
-      if (role === 'food') {
-        navigate('/order-food');
-      }
-      onClose();
-    } catch (error) {
-      console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
+  setIsLoading(true);
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('Login submitted:', { role, username, password });
+    if (role === 'food') {
+      navigate('/order-food');
+    } else if (role === 'chef') {
+      navigate('/chef-dashboard'); // Update this line
     }
-  };
+    onClose();
+  } catch (error) {
+    console.error('Login error:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const colorConfig = {
     food: {
@@ -43,6 +46,7 @@ function LoginForm({ role, onClose }) {
       button: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
     }
   };
+  
 
   const colors = colorConfig[role] || colorConfig.food;
 

@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CartContext } from '../App';
 import OrderNavbar from './OrderNavbar';
+import PersonalizedRequestPopup from './PersonalizedRequestPopup';
 
 function OrderFood() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [pincode, setPincode] = useState('');
+  const [pincode, setPincode] = useState(sessionStorage.getItem('detectedPincode') || '');
   const [locationStatus, setLocationStatus] = useState('');
+  const [hasAttemptedDetection, setHasAttemptedDetection] = useState(
+    sessionStorage.getItem('hasAttemptedDetection') === 'true'
+  );
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [deliveryOption, setDeliveryOption] = useState('Delivery');
   const [selectedTime, setSelectedTime] = useState('Now');
@@ -12,6 +18,11 @@ function OrderFood() {
   const [showPreferences, setShowPreferences] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { cartItems, setCartItems } = useContext(CartContext);
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -20,13 +31,18 @@ function OrderFood() {
   const handleDetectLocation = () => {
     setLocationStatus('fetching');
     setTimeout(() => {
-      setPincode('122017');
+      const detectedPincode = '122017';
+      setPincode(detectedPincode);
       setLocationStatus('success');
+      setHasAttemptedDetection(true);
+      // Store in session storage
+      sessionStorage.setItem('detectedPincode', detectedPincode);
+      sessionStorage.setItem('hasAttemptedDetection', 'true');
     }, 2000);
   };
 
   const handleExplore = (category) => {
-    console.log(`Exploring ${category} category`);
+    navigate(`/category/${category}`);
   };
 
   const handleTakeOrder = () => {
@@ -55,6 +71,7 @@ function OrderFood() {
     });
     setShowDisclaimer(false);
     setShowPreferences(false);
+    setOrderConfirmed(false);
     console.log('All dishes rejected');
   };
 
@@ -76,8 +93,9 @@ function OrderFood() {
       });
       setSelectedItems([]);
       setSelectedTime('Now');
+      setOrderConfirmed(false);
     }
-    console.log('Back button clicked');
+    console.log('Back icon clicked');
   };
 
   const handleItemToggle = (item) => {
@@ -87,11 +105,26 @@ function OrderFood() {
   };
 
   const handleCustomTime = (e) => {
-    const value = e.target.value.trim();
-    const timeRegex = /^([1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
-    if (timeRegex.test(value) || timeSlots.includes(value)) {
-      setSelectedTime(value);
+    const value = e.target.value;
+    if (value) {
+      const [hours, minutes] = value.split(':').map(Number);
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 || 12;
+      setSelectedTime(`${formattedHours}:${minutes.toString().padStart(2, '0')} ${period}`);
     }
+  };
+
+  const handleFinalizeOrder = () => {
+    if (selectedItems.length === 0) {
+      alert('Please select at least one item.');
+      return;
+    }
+    setIsConfirming(true);
+    setTimeout(() => {
+      setIsConfirming(false);
+      setOrderConfirmed(true);
+      setShowPreferences(false);
+    }, 1500);
   };
 
   // Placeholder for database data
@@ -144,7 +177,7 @@ function OrderFood() {
     },
     {
       name: 'HealSpoon',
-      description: 'Gentle, soothing meals for when you’re under the weather. Savor light khichdi, veggie broths, and steamed comforts that hug your soul and aid recovery.',
+      description: "Gentle, soothing meals for when you're under the weather. Savor light khichdi, veggie broths, and steamed comforts that hug your soul and aid recovery.",
       color: '#8e0000',
       image: 'https://i.postimg.cc/Xqyv1X23/7.jpg',
     },
@@ -167,20 +200,30 @@ function OrderFood() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      
-      <OrderNavbar 
+
+      <OrderNavbar
         onToggleSidebar={toggleSidebar}
         pincode={pincode}
         setPincode={setPincode}
         onDetectLocation={handleDetectLocation}
         locationStatus={locationStatus}
+        cartItems={cartItems}
+        onBack={() => navigate('/')}
       />
-      
+
       <div className="flex pt-16">
         {/* Sidebar */}
         {isSidebarOpen && (
           <div className="fixed top-16 left-0 h-[calc(100vh-4rem)] w-1/4 bg-[#c3015a] rounded-r-3xl shadow-lg p-6 z-40 flex flex-col gap-6 overflow-y-auto">
-            <div className="flex flex-col items-center">
+            <div className="relative flex flex-col items-center">
+              <button
+                onClick={handleBack}
+                className="absolute top-2 left-2 text-[#c3015a] hover:text-[#f5b110] transition-colors"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
               <img
                 src={chefInfo.photo}
                 alt={chefInfo.name}
@@ -189,15 +232,6 @@ function OrderFood() {
               <h2 className="text-xl font-bold text-white text-center">
                 From the Kitchen of {chefInfo.name}
               </h2>
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-2 bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold mt-2"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </button>
             </div>
 
             {/* Dishes */}
@@ -266,12 +300,44 @@ function OrderFood() {
               </div>
             )}
 
-            {/* Food Item Selection */}
-            {showPreferences && (
-              <div className="flex flex-col gap-2">
-                <p className="text-white text-sm font-semibold text-center">
-                  Select Items for {deliveryOption}:
-                </p>
+            {/* Order Confirmation */}
+            {orderConfirmed && (
+              <div className="bg-white p-4 rounded-lg text-center">
+                <svg className="h-12 w-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p className="text-[#c3015a] text-sm font-semibold">Your order is confirmed!</p>
+              </div>
+            )}
+
+            {/* Loading Spinner */}
+            {isConfirming && (
+              <div className="flex justify-center items-center">
+                <svg className="animate-spin h-8 w-8 text-[#f5b110]" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            )}
+
+            {/* Food Item Selection and Preferences */}
+            {showPreferences && !isConfirming && !orderConfirmed && (
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-row items-center justify-between mb-2">
+                  <button
+                    onClick={handleBack}
+                    className="text-white hover:text-[#f5b110] transition-colors"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <div className="flex-1 text-center">
+                    <p className="text-white text-sm font-semibold">
+                      Select Items for {deliveryOption}:
+                    </p>
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-2 max-w-full">
                   {chefInfo.orderItems.map((item) => (
                     <label
@@ -288,66 +354,78 @@ function OrderFood() {
                     </label>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Order Preference */}
-            {showPreferences && (
-              <div className="flex flex-col gap-2">
-                <p className="text-white text-sm font-semibold text-center">Order Preference:</p>
-                <div className="flex justify-center gap-4">
-                  <label className="flex items-center gap-2 text-white text-sm">
+                <div className="flex flex-row gap-4">
+                  <div className="flex flex-col gap-2 w-1/2">
+                    <p className="text-white text-sm font-semibold text-center">Order Preference:</p>
+                    <label className="flex items-center gap-2 text-white text-sm">
+                      <input
+                        type="radio"
+                        name="deliveryOption"
+                        value="Pickup"
+                        checked={deliveryOption === 'Pickup'}
+                        onChange={() => setDeliveryOption('Pickup')}
+                        className="text-[#f5b110]"
+                      />
+                      Pickup
+                    </label>
+                    <label className="flex items-center gap-2 text-white text-sm">
+                      <input
+                        type="radio"
+                        name="deliveryOption"
+                        value="Delivery"
+                        checked={deliveryOption === 'Delivery'}
+                        onChange={() => setDeliveryOption('Delivery')}
+                        className="text-[#f5b110]"
+                      />
+                      Delivery
+                    </label>
+                  </div>
+                  <div className="flex flex-col gap-2 w-1/2">
+                    <p className="text-white text-sm font-semibold text-center">Select Time for {deliveryOption}:</p>
+                    <div className="flex flex-row gap-2">
+                      {timeSlots.slice(0, 2).map((slot) => (
+                        <button
+                          key={slot}
+                          onClick={() => setSelectedTime(slot)}
+                          className={`flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+                            selectedTime === slot
+                              ? 'bg-[#f5b110] text-white'
+                              : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex flex-row gap-2">
+                      {timeSlots.slice(2, 4).map((slot) => (
+                        <button
+                          key={slot}
+                          onClick={() => setSelectedTime(slot)}
+                          className={`flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+                            selectedTime === slot
+                              ? 'bg-[#f5b110] text-white'
+                              : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
                     <input
-                      type="radio"
-                      name="deliveryOption"
-                      value="Pickup"
-                      checked={deliveryOption === 'Pickup'}
-                      onChange={() => setDeliveryOption('Pickup')}
-                      className="text-[#f5b110]"
+                      type="time"
+                      value={selectedTime.match(/^\d+:\d+/) ? selectedTime.match(/^\d+:\d+/)[0] : ''}
+                      onChange={handleCustomTime}
+                      className="w-full p-2 rounded-lg bg-white text-[#c3015a] text-sm text-center"
                     />
-                    Pickup
-                  </label>
-                  <label className="flex items-center gap-2 text-white text-sm">
-                    <input
-                      type="radio"
-                      name="deliveryOption"
-                      value="Delivery"
-                      checked={deliveryOption === 'Delivery'}
-                      onChange={() => setDeliveryOption('Delivery')}
-                      className="text-[#f5b110]"
-                    />
-                    Delivery
-                  </label>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Time Selection */}
-            {showPreferences && (
-              <div className="flex flex-col gap-2">
-                <p className="text-white text-sm font-semibold text-center">Select Time for {deliveryOption}:</p>
-                <div className="flex justify-center gap-2 flex-wrap">
-                  {timeSlots.map((slot) => (
-                    <button
-                      key={slot}
-                      onClick={() => setSelectedTime(slot)}
-                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                        selectedTime === slot
-                          ? 'bg-[#f5b110] text-white'
-                          : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
-                      }`}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  value={selectedTime}
-                  onChange={handleCustomTime}
-                  placeholder="Enter time, e.g., 2:45 PM"
-                  className="w-full p-2 rounded-lg bg-white text-[#c3015a] text-sm text-center"
-                />
+                <button
+                  onClick={handleFinalizeOrder}
+                  className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold w-full"
+                >
+                  Finalize Order
+                </button>
               </div>
             )}
 
@@ -363,15 +441,15 @@ function OrderFood() {
             </div>
           </div>
         )}
-        
+
         {/* Main Content */}
         <div className={`flex-1 p-6 ${isSidebarOpen ? 'ml-[25%]' : 'ml-0'}`}>
-          {!pincode ? (
+          {!pincode && !hasAttemptedDetection ? (
             <div className="flex flex-col items-center justify-center h-[70vh]">
               <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-                <img 
-                  src="src/components/public/assests/4.png" 
-                  alt="Location Error" 
+                <img
+                  src="src/components/public/assests/4.png"
+                  alt="Location Error"
                   className="mx-auto mb-4 w-80 h-80 object-contain"
                 />
                 <h2 className="text-2xl font-bold text-[#bb0718] mb-6">Can't locate you, please retry</h2>
@@ -408,9 +486,12 @@ function OrderFood() {
                       alt={category.name}
                       className="absolute inset-0 w-full h-full object-cover rounded-2xl"
                     />
-                    {hoveredCategory === index && (
-                      <div className="absolute inset-0 bg-black/50 rounded-2xl flex flex-col items-center justify-center p-6 overflow-hidden">
-                        <h3 className="text-2xl font-extrabold text-white mb-3 break-words">{category.name}</h3>
+                    {hoveredCategory !== index ? (
+                      <div className="absolute inset-0 flex items-end justify-center bg-black/30 rounded-2xl pb-[20%]">
+                        <h3 className="text-4xl font-extrabold text-white text-center break-words drop-shadow-lg">{category.name}</h3>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 bg-black/70 rounded-2xl flex flex-col items-center justify-center p-6 overflow-hidden">
                         <p className="text-white text-sm text-center mb-6 break-words">
                           {category.description}
                         </p>
@@ -431,10 +512,19 @@ function OrderFood() {
               <h2 className="text-xl font-bold text-[#bb0718] text-center">
                 You have 9 outside orders left for the month
               </h2>
+              <div className="text-center mt-6">
+                <button
+                  onClick={() => setIsPopupOpen(true)}
+                  className="bg-[#c3015a] text-white px-6 py-3 rounded-lg hover:bg-[#bb0718] transition-colors text-lg font-semibold"
+                >
+                  Send a Personalized Request
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
+      {isPopupOpen && <PersonalizedRequestPopup onClose={() => setIsPopupOpen(false)} />}
     </div>
   );
 }
