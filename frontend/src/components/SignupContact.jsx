@@ -84,14 +84,14 @@ function SignupContact() {
           </div>
           <div className="flex space-x-4">
             <img
-              src="https://via.placeholder.com/300x200?text=Home+Image"
+              src="https://i.postimg.cc/W3GR7BZv/Red-Yellow-Modern-Food-Journal-Presentation.png"
               alt="Home Image"
-              className="w-full h-auto object-cover rounded-lg shadow-md"
+              className="w-40 h-30 object-cover rounded-lg shadow-md"
             />
             <img
-              src="https://via.placeholder.com/300x200?text=Mom+Image"
+              src="https://i.postimg.cc/wB7tGVxM/Red-Yellow-Modern-Food-Journal-Presentation-1.png"
               alt="Mom Image"
-              className="w-full h-auto object-cover rounded-lg shadow-md"
+              className="w-40 h-30 object-cover rounded-lg shadow-md"
             />
           </div>
         </div>
@@ -151,7 +151,7 @@ function SignupContact() {
               className="mt-4 bg-green-600 text-white p-3 rounded-lg inline-flex items-center shadow-md"
             >
               <span className="mr-2">📧</span> Mail us
-              <span className="ml-2 text-sm">Support@cookr.in</span>
+              <span className="ml-2 text-sm">Support@hfm.in</span>
             </motion.div>
           </motion.div>
         </div>

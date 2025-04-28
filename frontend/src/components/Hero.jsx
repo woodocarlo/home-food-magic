@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Carousel from './Carousel';
 
 function Hero() {
-  const taglines = ['Healthy', 'Delicious', 'Easy'];
+  const taglines = ['Healthy', 'Delicious', 'Home'];
   const [currentTagline, setCurrentTagline] = useState('');
   const [index, setIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -47,7 +47,7 @@ function Hero() {
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
         <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-2xl [-webkit-text-stroke:1px_rgba(0,0,0,0.5)]">
-          Discover <span className="text-green-400 [-webkit-text-stroke:0]">{currentTagline}</span> Recipes
+          Discover <span className="text-green-400 [-webkit-text-stroke:0]">{currentTagline}</span> Food
         </h1>
       </div>
     </motion.section>

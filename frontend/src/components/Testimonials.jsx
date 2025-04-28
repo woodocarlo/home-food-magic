@@ -65,8 +65,8 @@ function Testimonials() {
   }, [inView, testimonials.length]);
 
   return (
-    <section ref={ref} className="py-16 bg-[url('https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat relative">
-      <div className="absolute inset-0 bg-black opacity-50 z-0" />
+    <section ref={ref} className="py-16 bg-[url('https://i.postimg.cc/pLvQQ62j/Green-Yellow-Modern-Food-Restaurant-Presentation.jpg')] bg-cover bg-center bg-no-repeat relative">
+      <div className="absolute inset-0 bg-black opacity-0 z-0" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.h2
           initial="hidden"

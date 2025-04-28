@@ -22,7 +22,7 @@ function Navbar() {
         {/* Left: Logo and Cookr */}
         <div className="flex items-center space-x-3">
           <img
-            src="https://via.placeholder.com/40x40?text=Logo"
+            src="https://i.postimg.cc/rwpXct2v/Whats-App-Image-2025-04-28-at-18-58-15-3abec7ea-removebg-preview.png"
             alt="Cookr Logo"
             className="h-10 w-10"
           />
@@ -37,7 +37,7 @@ function Navbar() {
               variants={linkVariants}
               className="text-2xl font-bold text-green-600"
             >
-              Cookr
+              Home's Food Magic
             </motion.h1>
           </ScrollLink>
         </div>

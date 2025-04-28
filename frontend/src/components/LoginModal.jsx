@@ -42,7 +42,7 @@ function LoginModal({ onClose }) {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <img 
-              src="https://via.placeholder.com/48?text=Logo" //APP LOGO 
+              src="https://i.postimg.cc/rwpXct2v/Whats-App-Image-2025-04-28-at-18-58-15-3abec7ea-removebg-preview.png" //APP LOGO 
               alt="App Logo" 
               className="h-12 w-12"
             />

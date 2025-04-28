@@ -38,11 +38,11 @@ function OrderNavbar({
                 </svg>
               </button>
               <img 
-                src="https://via.placeholder.com/48?text=Logo" 
+                src="https://i.postimg.cc/rwpXct2v/Whats-App-Image-2025-04-28-at-18-58-15-3abec7ea-removebg-preview.png" 
                 alt="App Logo" 
                 className="h-10 w-10"
               />
-              <span className="ml-2 text-xl font-bold text-white">Foodie</span>
+              <span className="ml-2 text-xl font-bold text-white">Home's Food Magic</span>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -126,7 +126,7 @@ function OrderNavbar({
                   className="flex items-center space-x-2 text-white hover:text-[#FF8F00] px-3 py-2 rounded-md"
                 >
                   <img 
-                    src="https://via.placeholder.com/32?text=Profile" 
+                    src="https://i.postimg.cc/bJd1NGPY/image.png" 
                     alt="Profile" 
                     className="h-8 w-8 rounded-full"
                   />

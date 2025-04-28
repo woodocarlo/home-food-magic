@@ -510,7 +510,7 @@ function OrderFood() {
                 Discover delicious meals tailored to your lifestyle, from fitness-focused to everyday delights.
               </p>
               <h2 className="text-xl font-bold text-[#bb0718] text-center">
-                You have 9 outside orders left for the month
+
               </h2>
               <div className="text-center mt-6">
                 <button
