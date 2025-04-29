@@ -48,17 +48,54 @@ function SignupContact() {
 
   const [isGetHomeModalOpen, setIsGetHomeModalOpen] = useState(false);
   const [isBecomeMomModalOpen, setIsBecomeMomModalOpen] = useState(false);
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    question: '',
+    password: '',
+    confirmPassword: ''
+  });
 
   const textVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Check if passwords match when either field changes
+    if (name === 'password' || name === 'confirmPassword') {
+      if (name === 'password') {
+        setPasswordsMatch(value === formData.confirmPassword);
+      } else {
+        setPasswordsMatch(value === formData.password);
+      }
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!passwordsMatch) {
+      alert('Passwords do not match!');
+      return;
+    }
+    // Handle form submission here
+    console.log('Form submitted:', formData);
+  };
+
   return (
     <section
       id="signup-contact"
       ref={ref}
-      className="py-16 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat relative"
+      className="py-16 bg-[url('https://i.postimg.cc/LXT55Xkd/Green-Yellow-Modern-Food-Restaurant-Presentation-7.jpg')] bg-cover bg-center bg-no-repeat relative"
     >
       <div className="absolute inset-0 bg-black opacity-50 z-0" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
@@ -110,40 +147,84 @@ function SignupContact() {
             <p className="text-lg text-white drop-shadow-md mb-6">
               Ask Us Anything You Need Answers For...
             </p>
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
+                name="name"
                 placeholder="Let us know your name *"
                 className="w-full p-3 bg-green-100 rounded-lg border-none focus:outline-none"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
               />
               <input
                 type="email"
+                name="email"
                 placeholder="Leave your mail ID *"
                 className="w-full p-3 bg-green-100 rounded-lg border-none focus:outline-none"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
               />
               <input
                 type="tel"
+                name="phone"
                 placeholder="Leave your phone number here *"
                 className="w-full p-3 bg-green-100 rounded-lg border-none focus:outline-none"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
               />
               <input
+                type="password"
+                name="password"
+                placeholder="Create a password *"
+                className="w-full p-3 bg-green-100 rounded-lg border-none focus:outline-none"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm your password *"
+                className={`w-full p-3 bg-green-100 rounded-lg border-none focus:outline-none ${
+                  !passwordsMatch && formData.confirmPassword ? 'border-red-500' : ''
+                }`}
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                required
+              />
+              {!passwordsMatch && formData.confirmPassword && (
+                <p className="text-red-500 text-sm">Passwords do not match!</p>
+              )}
+              <input
                 type="text"
+                name="location"
                 placeholder="Where do you live? *"
                 className="w-full p-3 bg-green-100 rounded-lg border-none focus:outline-none"
+                value={formData.location}
+                onChange={handleInputChange}
+                required
               />
               <input
                 type="text"
+                name="question"
                 placeholder="Ask us anything... *"
                 className="w-full p-3 bg-green-100 rounded-lg border-none focus:outline-none"
+                value={formData.question}
+                onChange={handleInputChange}
+                required
               />
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="mt-6 bg-green-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-800 flex items-center justify-center"
-            >
-              Get Answers <span className="ml-2">➔</span>
-            </motion.button>
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="mt-6 bg-green-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-800 flex items-center justify-center"
+              >
+                Get Answers <span className="ml-2">➔</span>
+              </motion.button>
+            </form>
             <motion.div
               initial="hidden"
               animate={inView ? 'visible' : 'hidden'}
@@ -162,37 +243,54 @@ function SignupContact() {
         isOpen={isGetHomeModalOpen}
         onClose={() => setIsGetHomeModalOpen(false)}
         title="Sign Up for Get a Home"
-        backgroundImage="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1920&auto=format&fit=crop"
+        backgroundImage="https://i.postimg.cc/mgCbhkRd/Green-Yellow-Modern-Food-Restaurant-Presentation-8.jpg"
       >
-        <div className="space-y-6">
+        <form className="space-y-6">
           <input
             type="text"
             placeholder="Your Name *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <input
             type="email"
             placeholder="Your Email *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Create Password *"
+            className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password *"
+            className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <input
             type="tel"
             placeholder="Your Phone Number *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <input
             type="text"
             placeholder="Preferred Location *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="w-3/4 bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700"
+            type="submit"
           >
             Submit
           </motion.button>
-        </div>
+        </form>
       </Modal>
 
       {/* Become a Mom Modal */}
@@ -202,35 +300,52 @@ function SignupContact() {
         title="Sign Up to Become a Mom"
         backgroundImage="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=1920&auto=format&fit=crop"
       >
-        <div className="space-y-6">
+        <form className="space-y-6">
           <input
             type="text"
             placeholder="Your Name *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <input
             type="email"
             placeholder="Your Email *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Create Password *"
+            className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password *"
+            className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <input
             type="tel"
             placeholder="Your Phone Number *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <input
             type="text"
             placeholder="Your Cooking Specialty *"
             className="w-3/4 p-3 bg-green-100/75 rounded-lg border-none focus:outline-none"
+            required
           />
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="w-3/4 bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700"
+            type="submit"
           >
             Submit
           </motion.button>
-        </div>
+        </form>
       </Modal>
     </section>
   );

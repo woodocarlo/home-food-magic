@@ -21,8 +21,28 @@ function OrderFood() {
   const [isConfirming, setIsConfirming] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [showMeals, setShowMeals] = useState(false); // New state for controlling meal display
+  const [isLoadingMeals, setIsLoadingMeals] = useState(false); // New state for loading meals
   const { cartItems, setCartItems } = useContext(CartContext);
   const navigate = useNavigate();
+
+  // Handle Escape key press to show meals
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape' && !showMeals) {
+        setIsLoadingMeals(true);
+        setTimeout(() => {
+          setIsLoadingMeals(false);
+          setShowMeals(true);
+        }, 1500); // Simulate loading for 1.5 seconds
+      }
+    };
+
+    window.addEventListener('keydown', handleEscKey);
+    return () => {
+      window.removeEventListener('keydown', handleEscKey);
+    };
+  }, [showMeals]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -35,7 +55,6 @@ function OrderFood() {
       setPincode(detectedPincode);
       setLocationStatus('success');
       setHasAttemptedDetection(true);
-      // Store in session storage
       sessionStorage.setItem('detectedPincode', detectedPincode);
       sessionStorage.setItem('hasAttemptedDetection', 'true');
     }, 2000);
@@ -129,21 +148,21 @@ function OrderFood() {
 
   // Placeholder for database data
   const chefInfo = {
-    name: 'Chef Aanya',
-    photo: 'https://i.postimg.cc/7ZBcjDqp/chef-photo.jpg',
+    name: 'Chef Chahat',
+    photo: 'https://i.postimg.cc/QxN4Hy3v/image.png',
     dishes: [
       {
         name: 'Grilled Chicken Bowl',
-        photo: 'https://i.postimg.cc/SKbXzLx4/crousel.jpg',
+        photo: 'https://i.postimg.cc/026ZWjdq/image.png',
         cookedAt: '2025-04-27T10:30:00',
       },
       {
-        name: 'Quinoa Power Salad',
-        photo: 'https://i.postimg.cc/T3vKSqMs/6.jpg',
+        name: 'Quinoa Salad',
+        photo: 'https://i.postimg.cc/xdQR1Rr0/image.png',
         cookedAt: '2025-04-26T11:00:00',
       },
     ],
-    orderItems: ['Chicken Curry', 'Veggie Stir-Fry', 'Paneer Tikka'],
+    orderItems: ['Grilled Chicken', 'Quinoa Salad', 'Roti'],
     note: 'Made with love and fresh ingredients just for you!',
   };
 
@@ -234,85 +253,15 @@ function OrderFood() {
               </h2>
             </div>
 
-            {/* Dishes */}
-            <div className="flex justify-center gap-4">
-              {chefInfo.dishes.map((dish, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <div
-                    className={`relative min-w-[160px] min-h-[190px] max-w-[180px] max-h-[190px] border-4 border-white shadow-md rounded-lg bg-white transform rotate-7 ${
-                      orderStatus[index] === 'rejected' ? 'bg-gray-400 opacity-50' : ''
-                    }`}
-                  >
-                    <div className="w-full h-[calc(100%-3rem)] overflow-hidden">
-                      <img
-                        src={dish.photo}
-                        alt={dish.name}
-                        className="w-full h-full object-cover rounded"
-                      />
-                    </div>
-                    <p className="absolute bottom-0 left-0 right-0 text-center text-base font-bold font-serif text-black">
-                      {dish.name}
-                    </p>
-                  </div>
-                  <p className="text-white text-xs text-center mt-2">Cooked {getCookedDay(dish.cookedAt)}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Order Options */}
-            {Object.values(orderStatus).includes('pending') && (
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={handleTakeOrder}
-                  className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold"
-                >
-                  Take Order
-                </button>
-                <button
-                  onClick={handleNotInterested}
-                  className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold"
-                >
-                  Not Interested
-                </button>
+            {/* Conditional Rendering for Meals */}
+            {!showMeals && !isLoadingMeals && (
+              <div className="flex justify-center items-center h-48">
+                <p className="text-white text-lg font-semibold">No meal to display</p>
               </div>
             )}
 
-            {/* Disclaimer */}
-            {showDisclaimer && (
-              <div className="bg-white p-4 rounded-lg text-center">
-                <p className="text-[#c3015a] text-sm mb-4">
-                  Are you sure? These dishes will be marked as unavailable and cannot be reordered.
-                </p>
-                <div className="flex justify-center gap-4">
-                  <button
-                    onClick={confirmNotInterested}
-                    className="bg-[#c3015a] text-white px-4 py-2 rounded-lg hover:bg-[#bb0718] transition-colors text-sm"
-                  >
-                    Confirm
-                  </button>
-                  <button
-                    onClick={cancelDisclaimer}
-                    className="bg-gray-200 text-[#c3015a] px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Order Confirmation */}
-            {orderConfirmed && (
-              <div className="bg-white p-4 rounded-lg text-center">
-                <svg className="h-12 w-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <p className="text-[#c3015a] text-sm font-semibold">Your order is confirmed!</p>
-              </div>
-            )}
-
-            {/* Loading Spinner */}
-            {isConfirming && (
-              <div className="flex justify-center items-center">
+            {isLoadingMeals && (
+              <div className="flex justify-center items-center h-48">
                 <svg className="animate-spin h-8 w-8 text-[#f5b110]" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -320,125 +269,215 @@ function OrderFood() {
               </div>
             )}
 
-            {/* Food Item Selection and Preferences */}
-            {showPreferences && !isConfirming && !orderConfirmed && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-row items-center justify-between mb-2">
-                  <button
-                    onClick={handleBack}
-                    className="text-white hover:text-[#f5b110] transition-colors"
-                  >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <div className="flex-1 text-center">
-                    <p className="text-white text-sm font-semibold">
-                      Select Items for {deliveryOption}:
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 max-w-full">
-                  {chefInfo.orderItems.map((item) => (
-                    <label
-                      key={item}
-                      className="flex items-center gap-2 text-white text-sm w-[calc(50%-0.5rem)]"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(item)}
-                        onChange={() => handleItemToggle(item)}
-                        className="text-[#f5b110]"
-                      />
-                      {item}
-                    </label>
+            {showMeals && (
+              <>
+                {/* Dishes */}
+                <div className="flex justify-center gap-4">
+                  {chefInfo.dishes.map((dish, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                      <div
+                        className={`relative min-w-[160px] min-h-[190px] max-w-[180px] max-h-[190px] border-4 border-white shadow-md rounded-lg bg-white transform rotate-7 ${
+                          orderStatus[index] === 'rejected' ? 'bg-gray-400 opacity-50' : ''
+                        }`}
+                      >
+                        <div className="w-full h-[calc(100%-3rem)] overflow-hidden">
+                          <img
+                            src={dish.photo}
+                            alt={dish.name}
+                            className="w-full h-full object-cover rounded"
+                          />
+                        </div>
+                        <p className="absolute bottom-0 left-0 right-0 text-center text-base font-bold font-serif text-black">
+                          {dish.name}
+                        </p>
+                      </div>
+                      <p className="text-white text-xs text-center mt-2">Cooked {getCookedDay(dish.cookedAt)}</p>
+                    </div>
                   ))}
                 </div>
-                <div className="flex flex-row gap-4">
-                  <div className="flex flex-col gap-2 w-1/2">
-                    <p className="text-white text-sm font-semibold text-center">Order Preference:</p>
-                    <label className="flex items-center gap-2 text-white text-sm">
-                      <input
-                        type="radio"
-                        name="deliveryOption"
-                        value="Pickup"
-                        checked={deliveryOption === 'Pickup'}
-                        onChange={() => setDeliveryOption('Pickup')}
-                        className="text-[#f5b110]"
-                      />
-                      Pickup
-                    </label>
-                    <label className="flex items-center gap-2 text-white text-sm">
-                      <input
-                        type="radio"
-                        name="deliveryOption"
-                        value="Delivery"
-                        checked={deliveryOption === 'Delivery'}
-                        onChange={() => setDeliveryOption('Delivery')}
-                        className="text-[#f5b110]"
-                      />
-                      Delivery
-                    </label>
+
+                {/* Order Options */}
+                {Object.values(orderStatus).includes('pending') && (
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={handleTakeOrder}
+                      className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold"
+                    >
+                      Take Order
+                    </button>
+                    <button
+                      onClick={handleNotInterested}
+                      className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold"
+                    >
+                      Not Interested
+                    </button>
                   </div>
-                  <div className="flex flex-col gap-2 w-1/2">
-                    <p className="text-white text-sm font-semibold text-center">Select Time for {deliveryOption}:</p>
-                    <div className="flex flex-row gap-2">
-                      {timeSlots.slice(0, 2).map((slot) => (
-                        <button
-                          key={slot}
-                          onClick={() => setSelectedTime(slot)}
-                          className={`flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-all ${
-                            selectedTime === slot
-                              ? 'bg-[#f5b110] text-white'
-                              : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
-                          }`}
+                )}
+
+                {/* Disclaimer */}
+                {showDisclaimer && (
+                  <div className="bg-white p-4 rounded-lg text-center">
+                    <p className="text-[#c3015a] text-sm mb-4">
+                      Are you sure? These dishes will be marked as unavailable and cannot be reordered.
+                    </p>
+                    <div className="flex justify-center gap-4">
+                      <button
+                        onClick={confirmNotInterested}
+                        className="bg-[#c3015a] text-white px-4 py-2 rounded-lg hover:bg-[#bb0718] transition-colors text-sm"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={cancelDisclaimer}
+                        className="bg-gray-200 text-[#c3015a] px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Order Confirmation */}
+                {orderConfirmed && (
+                  <div className="bg-white p-4 rounded-lg text-center">
+                    <svg className="h-12 w-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p className="text-[#c3015a] text-sm font-semibold">Your order is confirmed!</p>
+                  </div>
+                )}
+
+                {/* Loading Spinner */}
+                {isConfirming && (
+                  <div className="flex justify-center items-center">
+                    <svg className="animate-spin h-8 w-8 text-[#f5b110]" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                )}
+
+                {/* Food Item Selection and Preferences */}
+                {showPreferences && !isConfirming && !orderConfirmed && (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-row items-center justify-between mb-2">
+                      <button
+                        onClick={handleBack}
+                        className="text-white hover:text-[#f5b110] transition-colors"
+                      >
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <div className="flex-1 text-center">
+                        <p className="text-white text-sm font-semibold">
+                          Select Items for {deliveryOption}:
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 max-w-full">
+                      {chefInfo.orderItems.map((item) => (
+                        <label
+                          key={item}
+                          className="flex items-center gap-2 text-white text-sm w-[calc(50%-0.5rem)]"
                         >
-                          {slot}
-                        </button>
+                          <input
+                            type="checkbox"
+                            checked={selectedItems.includes(item)}
+                            onChange={() => handleItemToggle(item)}
+                            className="text-[#f5b110]"
+                          />
+                          {item}
+                        </label>
                       ))}
                     </div>
-                    <div className="flex flex-row gap-2">
-                      {timeSlots.slice(2, 4).map((slot) => (
-                        <button
-                          key={slot}
-                          onClick={() => setSelectedTime(slot)}
-                          className={`flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-all ${
-                            selectedTime === slot
-                              ? 'bg-[#f5b110] text-white'
-                              : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
-                          }`}
-                        >
-                          {slot}
-                        </button>
-                      ))}
+                    <div className="flex flex-row gap-4">
+                      <div className="flex flex-col gap-2 w-1/2">
+                        <p className="text-white text-sm font-semibold text-center">Order Preference:</p>
+                        <label className="flex items-center gap-2 text-white text-sm">
+                          <input
+                            type="radio"
+                            name="deliveryOption"
+                            value="Pickup"
+                            checked={deliveryOption === 'Pickup'}
+                            onChange={() => setDeliveryOption('Pickup')}
+                            className="text-[#f5b110]"
+                          />
+                          Pickup
+                        </label>
+                        <label className="flex items-center gap-2 text-white text-sm">
+                          <input
+                            type="radio"
+                            name="deliveryOption"
+                            value="Delivery"
+                            checked={deliveryOption === 'Delivery'}
+                            onChange={() => setDeliveryOption('Delivery')}
+                            className="text-[#f5b110]"
+                          />
+                          Delivery
+                        </label>
+                      </div>
+                      <div className="flex flex-col gap-2 w-1/2">
+                        <p className="text-white text-sm font-semibold text-center">Select Time for {deliveryOption}:</p>
+                        <div className="flex flex-row gap-2">
+                          {timeSlots.slice(0, 2).map((slot) => (
+                            <button
+                              key={slot}
+                              onClick={() => setSelectedTime(slot)}
+                              className={`flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+                                selectedTime === slot
+                                  ? 'bg-[#f5b110] text-white'
+                                  : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
+                              }`}
+                            >
+                              {slot}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex flex-row gap-2">
+                          {timeSlots.slice(2, 4).map((slot) => (
+                            <button
+                              key={slot}
+                              onClick={() => setSelectedTime(slot)}
+                              className={`flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+                                selectedTime === slot
+                                  ? 'bg-[#f5b110] text-white'
+                                  : 'bg-white text-[#c3015a] hover:bg-[#f5b110] hover:text-white'
+                              }`}
+                            >
+                              {slot}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="time"
+                          value={selectedTime.match(/^\d+:\d+/) ? selectedTime.match(/^\d+:\d+/)[0] : ''}
+                          onChange={handleCustomTime}
+                          className="w-full p-2 rounded-lg bg-white text-[#c3015a] text-sm text-center"
+                        />
+                      </div>
                     </div>
-                    <input
-                      type="time"
-                      value={selectedTime.match(/^\d+:\d+/) ? selectedTime.match(/^\d+:\d+/)[0] : ''}
-                      onChange={handleCustomTime}
-                      className="w-full p-2 rounded-lg bg-white text-[#c3015a] text-sm text-center"
-                    />
+                    <button
+                      onClick={handleFinalizeOrder}
+                      className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold w-full"
+                    >
+                      Finalize Order
+                    </button>
+                  </div>
+                )}
+
+                {/* Chef's Note */}
+                <div className="flex flex-col gap-2">
+                  <p className="text-white text-sm font-semibold text-center">Note from {chefInfo.name}:</p>
+                  <div
+                    className="p-4 rounded-lg text-white text-sm font-caveat bg-cover bg-center"
+                    style={{ backgroundImage: "url('https://i.postimg.cc/1tYJ5q0z/diary-bg.png')" }}
+                  >
+                    {chefInfo.note}
                   </div>
                 </div>
-                <button
-                  onClick={handleFinalizeOrder}
-                  className="bg-white text-[#c3015a] px-4 py-2 rounded-lg hover:bg-[#f5b110] hover:text-white transition-colors text-sm font-semibold w-full"
-                >
-                  Finalize Order
-                </button>
-              </div>
+              </>
             )}
-
-            {/* Chef's Note */}
-            <div className="flex flex-col gap-2">
-              <p className="text-white text-sm font-semibold text-center">Note from {chefInfo.name}:</p>
-              <div
-                className="p-4 rounded-lg text-white text-sm font-caveat bg-cover bg-center"
-                style={{ backgroundImage: "url('https://i.postimg.cc/1tYJ5q0z/diary-bg.png')" }}
-              >
-                {chefInfo.note}
-              </div>
-            </div>
           </div>
         )}
 
@@ -509,9 +548,7 @@ function OrderFood() {
               <p className="text-lg text-[#963f28] text-center mb-4">
                 Discover delicious meals tailored to your lifestyle, from fitness-focused to everyday delights.
               </p>
-              <h2 className="text-xl font-bold text-[#bb0718] text-center">
-
-              </h2>
+              <h2 className="text-xl font-bold text-[#bb0718] text-center"></h2>
               <div className="text-center mt-6">
                 <button
                   onClick={() => setIsPopupOpen(true)}

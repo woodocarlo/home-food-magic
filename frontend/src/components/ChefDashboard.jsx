@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function ChefDashboard() {
@@ -9,6 +9,8 @@ function ChefDashboard() {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isLoadingRequests, setIsLoadingRequests] = useState(false); // State for loading custom requests
+  const [customRequests, setCustomRequests] = useState([]); // Initially empty
   const [inviteDetails, setInviteDetails] = useState({
     mealType: 'Breakfast',
     date: '',
@@ -30,7 +32,6 @@ function ChefDashboard() {
     pricingWeek: '₹480',
     pricingMonth: '₹1700'
   });
-  const [customRequests, setCustomRequests] = useState([]);
   const [students, setStudents] = useState([
     { id: 1, name: 'Amit Sharma', acceptedToday: true, inviteSent: false },
     { id: 2, name: 'Priya Patel', acceptedToday: false, inviteSent: false },
@@ -76,6 +77,42 @@ function ChefDashboard() {
     { name: 'HealSpoon', desc: 'Light meals when feeling unwell' },
     { name: 'DailyCrave', desc: 'Regular comfort food' }
   ];
+
+  // Handle Escape key to trigger loading and show custom requests
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === 'Escape' && !isLoadingRequests && customRequests.length === 0) {
+        setIsLoadingRequests(true);
+        setTimeout(() => {
+          setCustomRequests([
+            {
+              id: 1,
+              requestType: 'Dish',
+              orderType: 'Pickup',
+              date: '01-05-2025',
+              time: '16:10',
+              dishes: [
+                {
+                  dishName: 'Pasta',
+                  cuisine: 'Italian',
+                  dietType: 'Vegetarian',
+                  quantity: '3',
+                  quantityUnit: 'people',
+                  description: 'White sauce pasta with extra chilli flakes and oregano, make it a bit spicy and thick',
+                  cookingInstructions: 'None'
+                }
+              ],
+              photos: [],
+              status: 'pending'
+            }
+          ]);
+          setIsLoadingRequests(false);
+        }, 1500); // 1.5-second loading animation
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isLoadingRequests, customRequests]);
 
   const toggleLanguage = () => {
     setLanguage(language === 'english' ? 'hindi' : 'english');
@@ -185,8 +222,18 @@ function ChefDashboard() {
     setShowProfileDropdown(false);
   };
 
-  const handleCustomRequestSubmit = (requestData) => {
-    setCustomRequests([...customRequests, requestData]);
+  const handleAcceptRequest = (requestId) => {
+    setCustomRequests(customRequests.map(request =>
+      request.id === requestId ? { ...request, status: 'accepted' } : request
+    ));
+    alert(language === 'english' ? 'Request accepted!' : 'अनुरोध स्वीकार किया गया!');
+  };
+
+  const handleRejectRequest = (requestId) => {
+    setCustomRequests(customRequests.map(request =>
+      request.id === requestId ? { ...request, status: 'rejected' } : request
+    ));
+    alert(language === 'english' ? 'Request rejected!' : 'अनुरोध अस्वीकार किया गया!');
   };
 
   const translations = {
@@ -201,7 +248,7 @@ function ChefDashboard() {
       egg: 'Contains Egg',
       price: 'Price (₹)',
       note: 'Note',
-      prepTime: 'Preparation Time',
+      prepTime: 'Time of Preparation',
       image1: 'Photo 1 of Dish',
       image2: 'Photo 2 of Dish',
       uploadImage1: 'Upload Photo 1',
@@ -232,7 +279,10 @@ function ChefDashboard() {
       pricingMonth: '1 Month Price',
       noOneHere: 'No one here',
       updateProfile: 'Update Profile',
-      languageToggle: 'हिंदी में बदलें'
+      languageToggle: 'हिंदी में बदलें',
+      accept: 'Accept',
+      reject: 'Reject',
+      loadingRequests: 'Loading requests...'
     },
     hindi: {
       title: 'मेरी रसोई',
@@ -276,7 +326,10 @@ function ChefDashboard() {
       pricingMonth: '1 महीने की कीमत',
       noOneHere: 'यहाँ कोई नहीं',
       updateProfile: 'प्रोफाइल अपडेट करें',
-      languageToggle: 'Switch to English'
+      languageToggle: 'Switch to English',
+      accept: 'स्वीकार करें',
+      reject: 'अस्वीकार करें',
+      loadingRequests: 'अनुरोध लोड हो रहे हैं...'
     }
   };
 
@@ -575,7 +628,6 @@ function ChefDashboard() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t.note}</label>
                 <div className="flex">
-                  {/* Input for dish note and recording button */}
                   <input
                     type="text"
                     value={newDish.note}
@@ -630,15 +682,20 @@ function ChefDashboard() {
           {/* Custom Requests */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">{t.customRequests}</h2>
-            {customRequests.length === 0 ? (
+            {isLoadingRequests ? (
+              <div className="flex flex-col items-center justify-center py-4">
+                <div className="animate-spin h-8 w-8 border-4 border-green-500 border-t-transparent rounded-full mb-2"></div>
+                <p className="text-gray-500 text-sm">{t.loadingRequests}</p>
+              </div>
+            ) : customRequests.length === 0 ? (
               <p className="text-gray-500 text-center py-4">
                 {language === 'english' ? 'No custom requests yet' : 'अभी तक कोई कस्टम अनुरोध नहीं'}
               </p>
             ) : (
               <div className="space-y-4">
-                {customRequests.map((request, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm">
-                    <h3 className="font  font-semibold text-lg text-gray-800">{request.requestType}</h3>
+                {customRequests.map((request) => (
+                  <div key={request.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm">
+                    <h3 className="font-semibold text-lg text-gray-800">{request.requestType}</h3>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm mt-1">
                       <div>
                         <span className="text-gray-500">Order Type: </span>
@@ -655,7 +712,7 @@ function ChefDashboard() {
                     </div>
                     <div className="mt-2">
                       <span className="text-gray-500">Dishes: </span>
-                      {Object.values(request.dishes).map((dish, dishIndex) => (
+                      {request.dishes.map((dish, dishIndex) => (
                         <div key={dishIndex} className="ml-4">
                           <div><strong>Dish {dishIndex + 1}:</strong> {dish.dishName}</div>
                           <div>Cuisine: {dish.cuisine}</div>
@@ -678,6 +735,32 @@ function ChefDashboard() {
                             />
                           )
                         ))}
+                      </div>
+                    )}
+                    {request.status === 'pending' && (
+                      <div className="mt-3 flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleAcceptRequest(request.id)}
+                          className="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transform transition-transform hover:scale-105"
+                        >
+                          {t.accept}
+                        </button>
+                        <button
+                          onClick={() => handleRejectRequest(request.id)}
+                          className="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transform transition-transform hover:scale-105"
+                        >
+                          {t.reject}
+                        </button>
+                      </div>
+                    )}
+                    {request.status === 'accepted' && (
+                      <div className="mt-3 text-green-600 text-sm font-semibold">
+                        {language === 'english' ? 'Request Accepted' : 'अनुरोध स्वीकार किया गया'}
+                      </div>
+                    )}
+                    {request.status === 'rejected' && (
+                      <div className="mt-3 text-red-600 text-sm font-semibold">
+                        {language === 'english' ? 'Request Rejected' : 'अनुरोध अस्वीकार किया गया'}
                       </div>
                     )}
                   </div>
@@ -819,7 +902,7 @@ function ChefDashboard() {
       {/* Simple Footer */}
       <div className="bg-gray-100 p-4 mt-8 text-center text-sm text-gray-600">
         {language === 'english' 
-          ? 'Need help? Call us at 9876543210' 
+          ? 'Need help? Call us at 9958330247' 
           : 'मदद चाहिए? हमें 9876543210 पर कॉल करें'}
       </div>
     </div>

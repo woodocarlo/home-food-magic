@@ -7,32 +7,46 @@ function LoginForm({ role, onClose }) {
   const [password, setPassword] = useState('');
   const [recaptchaValue, setRecaptchaValue] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
- // In your LoginForm.jsx, update the handleSubmit function
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!recaptchaValue) {
-    alert('Please verify you are not a robot.');
-    return;
-  }
-
-  setIsLoading(true);
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Login submitted:', { role, username, password });
-    if (role === 'food') {
-      navigate('/order-food');
-    } else if (role === 'chef') {
-      navigate('/chef-dashboard'); // Update this line
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!recaptchaValue) {
+      setError('Please verify you are not a robot.');
+      return;
     }
-    onClose();
-  } catch (error) {
-    console.error('Login error:', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+
+    // Check credentials based on role
+    if (role === 'chef') {
+      if (username !== 'chahat_1' || password !== '1234') {
+        setError('Invalid username or password');
+        return;
+      }
+    } else if (role === 'food') {
+      if (username !== 'yashika_04' || password !== '1234') {
+        setError('Invalid username or password');
+        return;
+      }
+    }
+
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Login submitted:', { role, username, password });
+      if (role === 'food') {
+        navigate('/order-food');
+      } else if (role === 'chef') {
+        navigate('/chef-dashboard');
+      }
+      onClose();
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred during login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const colorConfig = {
     food: {
@@ -47,17 +61,25 @@ const handleSubmit = async (e) => {
     }
   };
   
-
   const colors = colorConfig[role] || colorConfig.food;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="text-red-500 text-sm text-center">
+          {error}
+        </div>
+      )}
+      
       <div className="relative">
         <input
           type="text"
           id="username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setError('');
+          }}
           className={`peer mt-1 block w-full px-3 py-2 border ${colors.border} rounded-lg shadow-sm focus:outline-none ${colors.focus} transition-all placeholder-transparent`}
           placeholder=" "
           required
@@ -75,7 +97,10 @@ const handleSubmit = async (e) => {
           type="password"
           id="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError('');
+          }}
           className={`peer mt-1 block w-full px-3 py-2 border ${colors.border} rounded-lg shadow-sm focus:outline-none ${colors.focus} transition-all placeholder-transparent`}
           placeholder=" "
           required
@@ -92,7 +117,10 @@ const handleSubmit = async (e) => {
         <div className="scale-90 transform origin-center">
           <ReCAPTCHA
             sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-            onChange={(value) => setRecaptchaValue(value)}
+            onChange={(value) => {
+              setRecaptchaValue(value);
+              setError('');
+            }}
             size="normal"
           />
         </div>

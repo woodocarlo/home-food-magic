@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CartContext } from '../App';
 import OrderNavbar from './OrderNavbar';
-import dishes from './dishesData';
 import './CategoryPage.css';
 
 function CategoryPage() {
@@ -30,8 +29,133 @@ function CategoryPage() {
     time: '',
     dietary: [],
     nutrients: [],
-    distance: 1
+    distance: 1,
   });
+
+  // Define dishes data
+  const dishes = [
+    {
+      id: '1',
+      name: 'Khichdi',
+      category: 'HealSpoon',
+      image: 'https://i.postimg.cc/NM9yJYmZ/image.png',
+      price: 30,
+      description: 'A comforting blend of rice and lentils, lightly spiced for a soothing meal.',
+      dietary: 'Veg',
+      nutrients: ['Low-Calorie', 'Fiber-Rich'],
+      cookedAt: '2025-04-27T10:30:00',
+    },
+    {
+      id: '2',
+      name: 'Rajma Rice',
+      category: 'DailyCrave',
+      image: 'https://i.postimg.cc/Dzmm0Fjm/image.png',
+      price: 40,
+      description: 'Hearty kidney beans in a rich tomato gravy, served with fluffy rice.',
+      dietary: 'Veg',
+      nutrients: ['Protein-Rich', 'Carbs-Rich'],
+      cookedAt: '2025-04-27T11:00:00',
+    },
+    {
+      id: '3',
+      name: 'Aloo Paratha',
+      category: 'DailyCrave',
+      image: 'https://i.postimg.cc/Y9W9NRwH/image.png',
+      price: 35,
+      description: 'Soft parathas stuffed with spiced mashed potatoes, served with curd.',
+      dietary: 'Veg',
+      nutrients: ['Carbs-Rich'],
+      cookedAt: '2025-04-27T09:00:00',
+    },
+    {
+      id: '4',
+      name: 'Namkeen Chawal',
+      category: 'DailyCrave',
+      image: 'https://i.postimg.cc/90HfL9Wq/image.png',
+      price: 30,
+      description: 'Flavorful spiced rice with veggies, a quick and tasty comfort food.',
+      dietary: 'Veg',
+      nutrients: ['Carbs-Rich'],
+      cookedAt: '2025-04-27T12:00:00',
+    },
+    {
+      id: '5',
+      name: 'Oats',
+      category: 'VitalBite',
+      image: 'https://i.postimg.cc/Znjh6v0m/image.png',
+      price: 25,
+      description: 'Creamy oats cooked with milk, topped with fresh fruits for a healthy start.',
+      dietary: 'Veg',
+      nutrients: ['Vitamin-Rich', 'Low-Calorie'],
+      cookedAt: '2025-04-27T08:00:00',
+    },
+    {
+      id: '6',
+      name: 'Muesli',
+      category: 'VitalBite',
+      image: 'https://i.postimg.cc/5NNJbgk2/image.png',
+      price: 35,
+      description: 'Crunchy muesli with nuts and seeds, perfect for a nutrient-packed breakfast.',
+      dietary: 'Veg',
+      nutrients: ['Mineral-Rich', 'Fiber-Rich'],
+      cookedAt: '2025-04-27T08:30:00',
+    },
+    {
+      id: '7',
+      name: 'Poha',
+      category: 'VitalBite',
+      image: 'https://i.postimg.cc/bNChJnKH/image.png',
+      price: 30,
+      description: 'Light and fluffy flattened rice with veggies and mild spices.',
+      dietary: 'Veg',
+      nutrients: ['Low-Calorie'],
+      cookedAt: '2025-04-27T09:30:00',
+    },
+    {
+      id: '8',
+      name: 'Quinoa',
+      category: 'VitalBite',
+      image: 'https://i.postimg.cc/bw4f0hYZ/image.png',
+      price: 50,
+      description: 'Protein-rich quinoa salad with fresh veggies and a tangy dressing.',
+      dietary: 'Veg',
+      nutrients: ['Protein-Rich', 'Gluten-Free'],
+      cookedAt: '2025-04-27T10:00:00',
+    },
+    {
+      id: '9',
+      name: 'Soyabean',
+      category: 'PowerFuel',
+      image: 'https://i.postimg.cc/vZgpZN7b/image.png',
+      price: 35,
+      description: 'Nutritious soyabean curry packed with protein, perfect for muscle recovery.',
+      dietary: 'Veg',
+      nutrients: ['Protein-Rich'],
+      cookedAt: '2025-04-27T11:30:00',
+    },
+    {
+      id: '10',
+      name: 'Burrito',
+      category: 'PowerFuel',
+      image: 'https://i.postimg.cc/jdw0HsDD/image.png',
+      price: 45,
+      description: 'A wholesome wrap filled with beans, veggies, and spices for a quick energy boost.',
+      dietary: 'Veg',
+      nutrients: ['Protein-Rich', 'Carbs-Rich'],
+      cookedAt: '2025-04-27T12:30:00',
+    },
+    {
+      id: '11',
+      name: 'Egg Bhurji',
+      category: 'PowerFuel',
+      image: 'https://i.postimg.cc/DybHWBNs/image.png',
+      price: 30,
+      description: 'Spicy scrambled eggs with onions and masala, a protein-rich delight.',
+      dietary: 'Egg',
+      nutrients: ['Protein-Rich'],
+      cookedAt: '2025-04-27T10:15:00',
+    },
+  ];
 
   // Initialize distances for dishes on mount
   useEffect(() => {
@@ -187,9 +311,7 @@ function CategoryPage() {
         dish?.nutrients?.includes(nutrient)
       );
     })
-    .filter((dish) => {
-      return (dish?.price || 0) <= filters.priceRange;
-    })
+    .filter((dish) => (dish?.price || 0) <= filters.priceRange)
     .filter((dish) => getDistance(dish) <= filters.distance)
     .sort((a, b) => {
       if (filters.priceSort === 'low-to-high') return (a?.price || 0) - (b?.price || 0);
@@ -233,25 +355,29 @@ function CategoryPage() {
         : categoryName === 'VitalBite'
         ? ['Vitamin-Rich', 'Mineral-Rich', 'Low-Calorie']
         : []),
-      'Multigrain',
-      'Gluten-Free'
+      ...(categoryName === 'PowerFuel' || categoryName === 'VitalBite'
+        ? ['Multigrain', 'Gluten-Free']
+        : []),
+      ...(categoryName === 'HealSpoon' || categoryName === 'DailyCrave'
+        ? ['Fiber-Rich', 'Carbs-Rich']
+        : []),
     ],
   };
 
   const chefInfo = {
-    name: 'Chef Aanya',
-    photo: 'https://i.postimg.cc/7ZBcjDqp/chef-photo.jpg',
+    name: 'Chef Chahat',
+    photo: 'https://i.postimg.cc/QxN4Hy3v/image.png',
     dishes: [
-      {
+      { 
         id: 'chef1',
-        name: 'Signature Chicken Bowl',
-        image: 'https://i.postimg.cc/SKbXzLx4/crousel.jpg',
+        name: 'Grilled Chicken Bowl',
+        photo: 'https://i.postimg.cc/026ZWjdq/image.png',
         cookedAt: '2025-04-27T10:30:00',
       },
       {
         id: 'chef2',
-        name: 'Special Quinoa Salad',
-        image: 'https://i.postimg.cc/T3vKSqMs/6.jpg',
+        name: 'Quinoa Salad',
+        photo: 'https://i.postimg.cc/xdQR1Rr0/image.png',
         cookedAt: '2025-04-26T11:00:00',
       },
     ],
@@ -260,10 +386,26 @@ function CategoryPage() {
   };
 
   const appliedFilters = [
-    ...(filters.priceSort ? [{ type: 'priceSort', value: filters.priceSort, label: filterOptions.priceSort.find(o => o.value === filters.priceSort)?.label }] : []),
-    ...(filters.time ? [{ type: 'time', value: filters.time, label: filterOptions.time.find(o => o.value === filters.time)?.label }] : []),
-    ...filters.dietary.map(d => ({ type: 'dietary', value: d, label: d })),
-    ...filters.nutrients.map(n => ({ type: 'nutrients', value: n, label: n })),
+    ...(filters.priceSort
+      ? [
+          {
+            type: 'priceSort',
+            value: filters.priceSort,
+            label: filterOptions.priceSort.find((o) => o.value === filters.priceSort)?.label,
+          },
+        ]
+      : []),
+    ...(filters.time
+      ? [
+          {
+            type: 'time',
+            value: filters.time,
+            label: filterOptions.time.find((o) => o.value === filters.time)?.label,
+          },
+        ]
+      : []),
+    ...filters.dietary.map((d) => ({ type: 'dietary', value: d, label: d })),
+    ...filters.nutrients.map((n) => ({ type: 'nutrients', value: n, label: n })),
     ...(filters.priceRange !== 1000
       ? [{ type: 'priceRange', value: filters.priceRange, label: `Up to ₹${filters.priceRange}` }]
       : []),
@@ -644,24 +786,28 @@ function CategoryPage() {
               filteredDishes.map((dish) => (
                 <div
                   key={dish.id}
-                  className={`dish-card relative rounded-2xl shadow-lg bg-white overflow-hidden transition-all duration-300 ${hoveredDish === dish.id ? 'w-80 h-96' : 'w-64 h-72'}`}
+                  className={`dish-card relative rounded-2xl shadow-lg bg-white overflow-hidden transition-all duration-300 ${
+                    hoveredDish === dish.id ? 'w-80 h-96' : 'w-64 h-72'
+                  }`}
                   onMouseEnter={() => setHoveredDish(dish.id)}
                   onMouseLeave={() => setHoveredDish(null)}
                 >
                   <img
-                    src={dish.image || 'https://via.placeholder.com/150'}
-                    alt={dish.name || 'Dish'}
+                    src={dish.image}
+                    alt={dish.name}
                     className="w-full h-40 object-cover"
                   />
                   <div className="p-4">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`w-3 h-3 rounded-full ${dish.dietary === 'Veg' ? 'bg-green-500' : 'bg-red-500'}`}
+                        className={`w-3 h-3 rounded-full ${
+                          dish.dietary === 'Veg' ? 'bg-green-500' : 'bg-red-500'
+                        }`}
                       ></span>
-                      <h3 className="text-xl font-bold text-[#963f28]">{dish.name || 'Unknown Dish'}</h3>
+                      <h3 className="text-xl font-bold text-[#963f28]">{dish.name}</h3>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p className="text-base font-semibold text-[#c3015a]">₹{(dish.price || 0).toFixed(2)}</p>
+                      <p className="text-base font-semibold text-[#c3015a]">₹{dish.price.toFixed(2)}</p>
                       <div className="flex items-center gap-1">
                         <svg className="h-4 w-4 text-[#963f28]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -674,7 +820,7 @@ function CategoryPage() {
                       <div className="mt-2">
                         <p className="text-xs font-bold text-[#963f28] mb-1">{chefInfo.name}</p>
                         <p className="text-xs text-[#963f28] mb-1">Cooked {getCookedDay(dish.cookedAt)}</p>
-                        <p className="text-xs text-[#963f28] mb-1">{dish.description || 'No description available'}</p>
+                        <p className="text-xs text-[#963f28] mb-1">{dish.description}</p>
                         {dish.nutrients?.length > 0 && (
                           <p className="text-xs text-[#963f28]">{dish.nutrients.join(', ')}</p>
                         )}
