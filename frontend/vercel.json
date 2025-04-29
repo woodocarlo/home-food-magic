@@ -1,0 +1,26 @@
+{
+    "version": 2,
+    "name": "hfm",
+    "builds": [
+      {
+        "src": "package.json",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "dist",
+          "nodeVersion": "18.x"
+        }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/assets/(.*)",
+        "headers": {
+          "cache-control": "public, max-age=31536000, immutable"
+        }
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/dist/index.html"
+      }
+    ]
+  }
